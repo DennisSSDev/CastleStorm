@@ -6,44 +6,45 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
-public class DamageSystem : JobComponentSystem
+public class DamageSystem : JobComponentSystem // for zombies that damage cavalry
 {
-    private EntityQuery DamageDealerQuery;
     private EntityCommandBufferSystem commandBuffer;
 
     protected override void OnCreate()
     {
         commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-        //todo: this might need to be moved, or else it'll never work
-        DamageDealerQuery = GetEntityQuery(
-            ComponentType.ReadOnly<DamageDealerTag>(), 
-            ComponentType.ReadOnly<MeleeStrengthComponent>(), 
-            ComponentType.ReadOnly<Translation>()
-            );
         base.OnCreate();
     }
-
-    struct DamageDealerData
+    
+    [BurstCompile] [RequireComponentTag(typeof(DamageTakerTag), typeof(CavalryTag))]
+    struct DamageSystemJob : IJobForEachWithEntity<HealthComponent>
     {
-        public Entity e;
-        public float3 position;
-        public float strength;
-    }
-
-    [BurstCompile] [RequireComponentTag(typeof(DamageTakerTag))]
-    struct DamageSystemJob : IJobForEach<HealthComponent>
-    {
+        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        [DeallocateOnJobCompletion]
-        public NativeArray<DamageDealerData> DamageDealers;
+        [ReadOnly] 
+        public NativeMultiHashMap<Entity, float> DamageMap;
 
-        public void Execute(ref HealthComponent health)
+        public void Execute(Entity e, int jobIndex, ref HealthComponent health)
         {
-            health.hp -= 1;
-            //todo: loop through all the damage dealer locations and detect the ones that are closest
-            //todo: combine all the ones that are close enough into a variable that will deduct an x amount from the health stat
-            //todo: if the health value is below 0 -> ask the command buffer to remove the entity
+            float dmgAccumulation = 0f;
+            if (DamageMap.TryGetFirstValue(e, out var damage, out var it))
+            {
+                do
+                {
+                    dmgAccumulation += damage;
+                } while (DamageMap.TryGetNextValue(out damage, ref it));
+            }
+            health.hp -= dmgAccumulation;
+            if (health.hp < 0f)
+            {
+                CommandBuffer.DestroyEntity(jobIndex, e);
+            }
+            else
+            {
+                //todo: maybe unneeded
+                CommandBuffer.RemoveComponent(jobIndex, e, typeof(DamageTakerTag));
+            }
         }
     }
     
@@ -51,27 +52,11 @@ public class DamageSystem : JobComponentSystem
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();
 
-        var locations = DamageDealerQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        var strengths = DamageDealerQuery.ToComponentDataArray<MeleeStrengthComponent>(Allocator.TempJob);
-        var entities = DamageDealerQuery.ToEntityArray(Allocator.TempJob);
-
-
-        var damageDealerData = new NativeArray<DamageDealerData>(entities.Length, Allocator.TempJob);
-
-        for (int i = 0; i < entities.Length; i++)
-        {
-            damageDealerData[i] = new DamageDealerData { position = locations[i].Value, e = entities[i], strength = strengths[i].value };
-        }
-
         var job = new DamageSystemJob
         {
             CommandBuffer = cmndBuffer,
-            DamageDealers = damageDealerData
+            DamageMap = ZombieAttackSystem.DamageMap
         }.Schedule(this, inputDependencies);
-
-        locations.Dispose();
-        strengths.Dispose();
-        entities.Dispose();
 
         commandBuffer.AddJobHandleForProducer(job);
         return job;

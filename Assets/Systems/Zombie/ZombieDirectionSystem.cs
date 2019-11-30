@@ -15,7 +15,8 @@ public class ZombieDirectionSystem : JobComponentSystem
         {
             // todo: to make the movement more smooth you can attempt to get a cross product to get a right vector
             float3 direction = float3(0, 0, -1);
-            direction = target.isValid ? normalize(target.location - translation.Value) : direction;
+            direction = target.entity != Entity.Null ? normalize(target.location - translation.Value) : direction;
+            movement.direction = direction;
         }
     }
     
