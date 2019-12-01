@@ -11,8 +11,8 @@ public class ZombieSpawner : MonoBehaviour
 
     private List<int2> usedPositions = new List<int2>(1000);
 
-    private int2 minPos = new int2(-100, 65);
-    private int2 maxPos = new int2(100, 100);
+    private int2 minPos = new int2(-100, 175);
+    private int2 maxPos = new int2(100, 230);
 
     // Start is called before the first frame update
     void Start()

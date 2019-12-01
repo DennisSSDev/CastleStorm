@@ -16,7 +16,7 @@ public class ZombieAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new HealthComponent { hp = HP });
         dstManager.AddComponentData(entity, new MovementComponent { speed = movementSpeed, direction = initialDirection, defaultDirection = new float3(0, 0, -1)});
         dstManager.AddComponentData(entity, new AttackStateComponent { value = (ushort)AttackState.None });
-        dstManager.AddComponentData(entity, new TargetComponent { entity = Entity.Null });
+        dstManager.AddComponentData(entity, new TargetComponent { entity = Entity.Null, targetMask = (ushort) (QuadEntityType.Cavalry | QuadEntityType.Archer) });
         dstManager.AddComponentData(entity, new MeleeStrengthComponent{ value = meleeStrength });
         dstManager.AddComponentData(entity, new QuadrantEntityComponent{type = QuadEntityType.Zombie});
         dstManager.AddComponent<ZombieTag>(entity);

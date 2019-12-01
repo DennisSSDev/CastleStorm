@@ -15,8 +15,8 @@ public class FollowerSystem : JobComponentSystem
         commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         base.OnCreate();
     }
-
-    [BurstCompile][RequireComponentTag(typeof(CavalryTag))]
+    
+    [RequireComponentTag(typeof(CavalryTag))] // can't burst :'(
     struct FollowerSystemJob : IJobForEachWithEntity<Translation, FollowerComponent>
     {
         [ReadOnly]
@@ -32,6 +32,7 @@ public class FollowerSystem : JobComponentSystem
                 // there is no longer a valid leader, switch to target search
                 CommandBuffer.RemoveComponent(jobIndex, e, typeof(FollowerComponent));
                 CommandBuffer.AddComponent(jobIndex, e, new NoLeaderTag());
+                return;
             }
 
             float3 leaderPos = LeaderPositionData[follow.Leader].position;

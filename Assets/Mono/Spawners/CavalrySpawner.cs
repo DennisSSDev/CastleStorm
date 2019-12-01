@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -25,8 +23,7 @@ public class CavalrySpawner : MonoBehaviour
         var leaderInstance = entityManager.Instantiate(leaderArchetype);
         
         entityManager.SetComponentData(leaderInstance, new Translation{ Value = new float3(transform.position.x, 1f, transform.position.z)});
-
-
+        entityManager.SetComponentData(leaderInstance, new LeaderComponent{ position = new float3(transform.position.x, 1f, transform.position.z)});
         float columnOffset = 0f;
         for (int i = 0; i < rows; i++)
         {
@@ -42,9 +39,10 @@ public class CavalrySpawner : MonoBehaviour
                     Leader = leaderInstance, 
                     Offset = new float3(rowOffset, 1f, columnOffset)
                 });
-                rowOffset += 3f;
+
+                rowOffset += 5f;
             }
-            columnOffset -= 3f;
+            columnOffset -= 5f;
         }
     }
 }

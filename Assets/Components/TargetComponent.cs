@@ -8,4 +8,5 @@ public struct TargetComponent : IComponentData
 {
     public Entity entity;
     public float3 location;
+    public ushort targetMask;
 }

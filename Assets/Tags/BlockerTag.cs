@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct CoverTag : IComponentData
+public struct BlockerTag : IComponentData
 {
     // Add fields to your component here. Remember that:
     //

@@ -2,9 +2,6 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
-using static Unity.Mathematics.math;
 
 public class DamageSystem : JobComponentSystem
 {
@@ -19,7 +16,6 @@ public class DamageSystem : JobComponentSystem
     [BurstCompile] [RequireComponentTag(typeof(DamageTakerTag))]
     struct DamageSystemJob : IJobForEachWithEntity<HealthComponent>
     {
-        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly] 
@@ -43,7 +39,7 @@ public class DamageSystem : JobComponentSystem
             else
             {
                 //todo: maybe unneeded
-                CommandBuffer.RemoveComponent(jobIndex, e, typeof(DamageTakerTag));
+                CommandBuffer.RemoveComponent<DamageTakerTag>(jobIndex, e);
             }
         }
     }

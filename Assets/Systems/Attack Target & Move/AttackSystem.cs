@@ -26,9 +26,10 @@ public class AttackSystem : JobComponentSystem
         base.OnDestroy();
     }
 
-    [BurstCompile] [RequireComponentTag(typeof(CanDamageTag), typeof(NoLeaderTag))]
+    [RequireComponentTag(typeof(CanDamageTag), typeof(NoLeaderTag))] // can't burst :'(
     struct ZombieAttackSystemJob : IJobForEachWithEntity<Translation, MeleeStrengthComponent, AttackStateComponent, TargetComponent>
     {
+        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly]

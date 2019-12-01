@@ -17,25 +17,26 @@ public class TargetSearchSystem : JobComponentSystem
         public void Execute([ReadOnly] ref Translation translation, ref TargetComponent target, [ReadOnly] ref QuadrantEntityComponent entityQuadInfo)
         {
             float3 entityPosition = translation.Value;
-            float closestDistance = 1000f;
-
-            int hashKey = QuadrantSystem.GetPositionHashMapKey(entityPosition);
 
             // if the entity is so far off the map, it doesn't even need to search for anything
             if (entityPosition.z > 80 || entityPosition.z < -200)
                 return;
 
+            float closestDistance = 1000f;
+
+            int hashKey = QuadrantSystem.GetPositionHashMapKey(entityPosition);
+
             if (EntityHashMap.TryGetFirstValue(hashKey, out var quadData, out var it))
             {
                 do
                 {
-                    if (quadData.quadEntityData.type == entityQuadInfo.type)
+                    if ( ( (ushort) (quadData.quadEntityData.type) & target.targetMask) == 0)
                         continue;
 
                     float3 otherUnitLoc = quadData.position;
 
                     // only care to find a target that is in the approximate same lane
-                    if (abs(otherUnitLoc.x - entityPosition.x) > 20f)
+                    if (abs(otherUnitLoc.x - entityPosition.x) > 25f)
                     {
                         continue;
                     }
@@ -47,6 +48,10 @@ public class TargetSearchSystem : JobComponentSystem
                     // use that cavalry unit as the target immediately
                     if (closestDistance > currentDis)
                     {
+                        if ( (ushort) (entityQuadInfo.type & QuadEntityType.Cavalry) != 0)
+                        {
+                            // if this is a cavalry unit make the entity targeted so that other cavalry units can't take it
+                        }
                         closestDistance = currentDis;
                         target.entity = quadData.e;
                         target.location = otherUnitLoc;
