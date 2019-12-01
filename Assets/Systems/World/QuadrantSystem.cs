@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unity.Mathematics.math;
 
 public struct QuadrantData
 {
@@ -17,12 +16,9 @@ public class QuadrantSystem : JobComponentSystem
 {
     private const int quadrantZMul = 1000;
     private const int quadrantCellSize = 20;
+    private EntityQuery quadrantEntityQuery;
     
-    private EntityQuery zombQuery;
-    private EntityQuery cavQuery;
-    
-    public static NativeMultiHashMap<int, QuadrantData> zombieHashMap;
-    public static NativeMultiHashMap<int, QuadrantData> cavalryHashMap;
+    public static NativeMultiHashMap<int, QuadrantData> QuadrantEntityHashMap;
 
     public static int GetPositionHashMapKey(float3 position)
     {
@@ -31,18 +27,15 @@ public class QuadrantSystem : JobComponentSystem
 
     protected override void OnCreate()
     {
-        zombieHashMap = new NativeMultiHashMap<int, QuadrantData>(0, Allocator.Persistent);
-        cavalryHashMap = new NativeMultiHashMap<int, QuadrantData>(0, Allocator.Persistent);
+        QuadrantEntityHashMap = new NativeMultiHashMap<int, QuadrantData>(0, Allocator.Persistent);
 
-        zombQuery = GetEntityQuery(typeof(Translation), typeof(QuadrantEntityComponent), typeof(ZombieTag));
-        cavQuery = GetEntityQuery(typeof(Translation), typeof(QuadrantEntityComponent), typeof(CavalryTag));
+        quadrantEntityQuery = GetEntityQuery(typeof(Translation), typeof(QuadrantEntityComponent));
         base.OnCreate();
     }
 
     protected override void OnDestroy()
     {
-        zombieHashMap.Dispose();
-        cavalryHashMap.Dispose();
+        QuadrantEntityHashMap.Dispose();
         base.OnDestroy();
     }
 
@@ -50,9 +43,7 @@ public class QuadrantSystem : JobComponentSystem
     struct QuadrantSystemJob : IJobForEachWithEntity<Translation, QuadrantEntityComponent>
     {
         [WriteOnly]
-        public NativeMultiHashMap<int, QuadrantData>.ParallelWriter cavHashMap;
-        [WriteOnly]
-        public NativeMultiHashMap<int, QuadrantData>.ParallelWriter zombHashMap;
+        public NativeMultiHashMap<int, QuadrantData>.ParallelWriter EntityHashMap;
 
         public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation, [ReadOnly] ref QuadrantEntityComponent quadEntity)
         {
@@ -63,41 +54,24 @@ public class QuadrantSystem : JobComponentSystem
                 position = translation.Value,
                 quadEntityData = quadEntity
             };
-
-            switch (quadEntity.type)
-            {
-                case QuadEntityType.Zombie:
-                    zombHashMap.Add(hashKey, data);
-                    break;
-                case QuadEntityType.Cavalry:
-                    cavHashMap.Add(hashKey, data);
-                    break;
-            }
+            EntityHashMap.Add(hashKey, data);
         }
     }
     
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        int cavQueryLength = cavQuery.CalculateEntityCount();
-        int zombQueryLength = zombQuery.CalculateEntityCount();
+        int zombQueryLength = quadrantEntityQuery.CalculateEntityCount();
         
-        zombieHashMap.Clear();
-        cavalryHashMap.Clear();
+        QuadrantEntityHashMap.Clear();
 
-        if (zombQueryLength > zombieHashMap.Capacity)
+        if (zombQueryLength > QuadrantEntityHashMap.Capacity)
         {
-            zombieHashMap.Capacity = zombQueryLength;
-        }
-
-        if (cavQueryLength > cavalryHashMap.Capacity)
-        {
-            cavalryHashMap.Capacity = cavQueryLength;
+            QuadrantEntityHashMap.Capacity = zombQueryLength;
         }
 
         var job = new QuadrantSystemJob
         {
-            cavHashMap = cavalryHashMap.AsParallelWriter(),
-            zombHashMap = zombieHashMap.AsParallelWriter()
+            EntityHashMap = QuadrantEntityHashMap.AsParallelWriter()
         }.Schedule(this, inputDependencies);
 
         return job;

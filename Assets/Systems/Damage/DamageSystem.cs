@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
-public class DamageSystem : JobComponentSystem // for zombies that damage cavalry
+public class DamageSystem : JobComponentSystem
 {
     private EntityCommandBufferSystem commandBuffer;
 
@@ -16,7 +16,7 @@ public class DamageSystem : JobComponentSystem // for zombies that damage cavalr
         base.OnCreate();
     }
     
-    [BurstCompile] [RequireComponentTag(typeof(DamageTakerTag), typeof(CavalryTag))]
+    [BurstCompile] [RequireComponentTag(typeof(DamageTakerTag))]
     struct DamageSystemJob : IJobForEachWithEntity<HealthComponent>
     {
         [WriteOnly]
@@ -55,7 +55,7 @@ public class DamageSystem : JobComponentSystem // for zombies that damage cavalr
         var job = new DamageSystemJob
         {
             CommandBuffer = cmndBuffer,
-            DamageMap = ZombieAttackSystem.DamageMap
+            DamageMap = AttackSystem.DamageMap
         }.Schedule(this, inputDependencies);
 
         commandBuffer.AddJobHandleForProducer(job);

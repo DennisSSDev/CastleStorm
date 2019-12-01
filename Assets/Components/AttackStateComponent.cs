@@ -4,13 +4,14 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 
-public enum ZombieAttackState: ushort {
+public enum AttackState: ushort 
+{
     Attacking = 0,
     None = 1
 }
 
 [Serializable]
-public struct ZombieAttackStateComponent : IComponentData
+public struct AttackStateComponent : IComponentData
 {
     public ushort value;
 }

@@ -14,13 +14,15 @@ public class ZombieAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new HealthComponent { hp = HP });
-        dstManager.AddComponentData(entity, new MovementComponent { speed = movementSpeed, direction = initialDirection });
-        dstManager.AddComponentData(entity, new ZombieAttackStateComponent { value = (ushort)ZombieAttackState.None });
+        dstManager.AddComponentData(entity, new MovementComponent { speed = movementSpeed, direction = initialDirection, defaultDirection = new float3(0, 0, -1)});
+        dstManager.AddComponentData(entity, new AttackStateComponent { value = (ushort)AttackState.None });
         dstManager.AddComponentData(entity, new TargetComponent { entity = Entity.Null });
         dstManager.AddComponentData(entity, new MeleeStrengthComponent{ value = meleeStrength });
         dstManager.AddComponentData(entity, new QuadrantEntityComponent{type = QuadEntityType.Zombie});
         dstManager.AddComponent<ZombieTag>(entity);
+        dstManager.AddComponent<NoLeaderTag>(entity);
         // by default all zombies start in the cavalry zone (could lead to issues if space changes)
         dstManager.AddComponent<CavalryZoneTag>(entity);
+        dstManager.AddComponent<CanDamageTag>(entity);
     }
 }

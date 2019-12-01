@@ -7,5 +7,6 @@ using Unity.Mathematics;
 public struct MovementComponent : IComponentData
 {
     public float3 direction;
+    public float3 defaultDirection;
     public float speed;
 }
