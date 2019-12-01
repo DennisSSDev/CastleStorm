@@ -18,19 +18,20 @@ public class LeaderSystem : JobComponentSystem
 
     [BurstCompile]
     [RequireComponentTag(typeof(SquadLeaderTag))]
-    struct LeaderSystemJob : IJobForEachWithEntity<Translation, TargetComponent>
+    struct LeaderSystemJob : IJobForEachWithEntity<Translation, TargetComponent, LeaderComponent>
     {
         [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation, [ReadOnly] ref TargetComponent target)
+        public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation, [ReadOnly] ref TargetComponent target, ref LeaderComponent leader)
         {
             Entity entity = target.entity;
+            leader.position = translation.Value;
             if (entity == Entity.Null)
                 return;
 
             float distanceToTarget = distancesq(translation.Value, target.location);
-            if (distanceToTarget < 5000f)
+            if (distanceToTarget < 1000f)
             {
                 CommandBuffer.DestroyEntity(jobIndex, e);
             }

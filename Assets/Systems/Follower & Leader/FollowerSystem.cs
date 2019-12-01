@@ -20,7 +20,7 @@ public class FollowerSystem : JobComponentSystem
     struct FollowerSystemJob : IJobForEachWithEntity<Translation, FollowerComponent>
     {
         [ReadOnly]
-        public ComponentDataFromEntity<Translation> LeaderPositionData;
+        public ComponentDataFromEntity<LeaderComponent> LeaderPositionData;
 
         [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -34,7 +34,7 @@ public class FollowerSystem : JobComponentSystem
                 CommandBuffer.AddComponent(jobIndex, e, new NoLeaderTag());
             }
 
-            float3 leaderPos = LeaderPositionData[follow.Leader].Value;
+            float3 leaderPos = LeaderPositionData[follow.Leader].position;
             float3 desiredPosition = leaderPos + follow.Offset;
             float distanceToLeader = distancesq(translation.Value, desiredPosition);
 
@@ -56,7 +56,7 @@ public class FollowerSystem : JobComponentSystem
         var job = new FollowerSystemJob
         {
             CommandBuffer = cmndBuffer,
-            LeaderPositionData = GetComponentDataFromEntity<Translation>(true)
+            LeaderPositionData = GetComponentDataFromEntity<LeaderComponent>(true)
         };
 
         // Now that the job is set up, schedule it to be run. 
