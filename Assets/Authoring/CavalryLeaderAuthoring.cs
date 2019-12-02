@@ -15,6 +15,7 @@ public class CavalryLeaderAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new MovementComponent {defaultDirection = new float3(0,0,1), direction = new float3(0,0,1), speed = 5f} );
         dstManager.AddComponentData(entity, new TargetComponent { entity = Entity.Null, targetMask = (ushort) QuadEntityType.Zombie } );
         dstManager.AddComponentData(entity, new AttackStateComponent{value = (ushort)AttackState.None});
+        dstManager.AddComponentData(entity, new MovementStateComponent{Value = (ushort)MovementState.Moving});
         dstManager.AddComponentData(entity, new LeaderComponent() );
     }
 }

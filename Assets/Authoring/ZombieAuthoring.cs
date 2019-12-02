@@ -19,6 +19,7 @@ public class ZombieAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new TargetComponent { entity = Entity.Null, targetMask = (ushort) (QuadEntityType.Cavalry | QuadEntityType.Archer) });
         dstManager.AddComponentData(entity, new MeleeStrengthComponent{ value = meleeStrength });
         dstManager.AddComponentData(entity, new QuadrantEntityComponent{type = QuadEntityType.Zombie});
+        dstManager.AddComponentData(entity, new MovementStateComponent{Value = (ushort)MovementState.Moving});
         dstManager.AddComponent<ZombieTag>(entity);
         dstManager.AddComponent<NoLeaderTag>(entity);
         // by default all zombies start in the cavalry zone (could lead to issues if space changes)

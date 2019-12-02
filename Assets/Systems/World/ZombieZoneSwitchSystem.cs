@@ -2,22 +2,22 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using static Unity.Mathematics.math;
+using Random = Unity.Mathematics.Random;
 
 public class ZombieZoneSwitchSystem : JobComponentSystem
 {
     private EntityCommandBufferSystem commandBuffer;
+    private Random randomizer;
 
     protected override void OnCreate()
     {
         commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        randomizer = new Random(1000);
         base.OnCreate();
     }
 
-    [RequireComponentTag(typeof(ZombieTag))] // can't burst compile
+    [RequireComponentTag(typeof(ZombieTag), typeof(CavalryZoneTag))] // can't burst compile
     struct ZombieZoneSwitchSystemJob : IJobForEachWithEntity<Translation>
     {
         [WriteOnly]
@@ -26,12 +26,18 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
         [ReadOnly]
         public float SpikeZoneThreshold;
 
+        public Random Randomizer;
+
         public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation)
         {
-            if (translation.Value.z < SpikeZoneThreshold)
+            if (translation.Value.z > SpikeZoneThreshold)
+                return;
+
+            CommandBuffer.AddComponent(jobIndex, e, ComponentType.ReadOnly<SpikeZoneTag>());
+            CommandBuffer.RemoveComponent<CavalryZoneTag>(jobIndex, e);
+            if (Randomizer.NextUInt(0, 100) < 15)
             {
-                //todo: maybe should remove the previous zone
-                CommandBuffer.AddComponent(jobIndex, e, ComponentType.ReadOnly<SpikeZoneTag>());
+                CommandBuffer.AddComponent(jobIndex, e, ComponentType.ReadOnly<IsIntelligentTag>());
             }
         }
     }
@@ -43,7 +49,8 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
         var job = new ZombieZoneSwitchSystemJob
         {
             SpikeZoneThreshold = Board.SpikeZone,
-            CommandBuffer = cmndBuffer
+            CommandBuffer = cmndBuffer,
+            Randomizer = randomizer
         }.Schedule(this, inputDependencies);
 
         job.Complete();

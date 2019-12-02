@@ -13,9 +13,10 @@ public class DamageSystem : JobComponentSystem
         base.OnCreate();
     }
     
-    [BurstCompile] [RequireComponentTag(typeof(DamageTakerTag))]
+    [RequireComponentTag(typeof(DamageTakerTag))] // can't burst
     struct DamageSystemJob : IJobForEachWithEntity<HealthComponent>
     {
+        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly] 
@@ -38,7 +39,6 @@ public class DamageSystem : JobComponentSystem
             }
             else
             {
-                //todo: maybe unneeded
                 CommandBuffer.RemoveComponent<DamageTakerTag>(jobIndex, e);
             }
         }

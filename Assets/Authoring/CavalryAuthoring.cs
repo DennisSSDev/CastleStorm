@@ -19,6 +19,7 @@ public class CavalryAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new QuadrantEntityComponent{type = QuadEntityType.Cavalry});
         dstManager.AddComponentData(entity, new BehaviorStateComponent{state = Behavior.Await});
         dstManager.AddComponentData(entity, new AttackStateComponent{value = (ushort)AttackState.None});
+        dstManager.AddComponentData(entity, new MovementStateComponent{Value = (ushort)MovementState.Moving});
         // by default cavalry is only in the cavalry zone
         dstManager.AddComponent<CavalryZoneTag>(entity);
         dstManager.AddComponent<CanDamageTag>(entity);
