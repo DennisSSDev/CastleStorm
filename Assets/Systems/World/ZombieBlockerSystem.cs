@@ -27,7 +27,7 @@ public class ZombieBlockerSystem : JobComponentSystem
         public NativeMultiHashMap<int, BlockerData> BlockerMap;
 
         [ReadOnly] 
-        public ComponentDataFromEntity<BlockerDamageComponent> DamageData;
+        public ComponentDataFromEntity<BlockerDamageTag> DamageData;
 
         [ReadOnly] 
         public ComponentDataFromEntity<HealthComponent> HealthData;
@@ -63,7 +63,7 @@ public class ZombieBlockerSystem : JobComponentSystem
                    // detect if the blocker has a DamageTag. If not, add one
                    if (!DamageData.Exists(blockerData.entity))
                    {
-                       CommandBuffer.AddComponent(jobIndex, blockerData.entity, new BlockerDamageComponent());
+                       CommandBuffer.AddComponent(jobIndex, blockerData.entity, new BlockerDamageTag());
                        return;
                    }
 
@@ -80,7 +80,7 @@ public class ZombieBlockerSystem : JobComponentSystem
         {
             CommandBuffer = cmndBuffer,
             BlockerMap = BlockerSystem.BlockerMap,
-            DamageData = GetComponentDataFromEntity<BlockerDamageComponent>(true),
+            DamageData = GetComponentDataFromEntity<BlockerDamageTag>(true),
             HealthData = GetComponentDataFromEntity<HealthComponent>(true)
         }.Schedule(this, inputDependencies);
 

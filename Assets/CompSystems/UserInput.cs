@@ -17,7 +17,7 @@ public class UserInput : ComponentSystem
     private float sensitivity = 0.5f;
     private float panSpeed = 20f;
     private float panBorderThickness = 10f;
-    private float scrollSpeed = 250f;
+    private float scrollSpeed = 2500f;
 
     protected override void OnStartRunning()
     {

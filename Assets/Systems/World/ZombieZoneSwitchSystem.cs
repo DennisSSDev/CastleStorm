@@ -35,9 +35,14 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
 
             CommandBuffer.AddComponent(jobIndex, e, ComponentType.ReadOnly<SpikeZoneTag>());
             CommandBuffer.RemoveComponent<CavalryZoneTag>(jobIndex, e);
-            if (Randomizer.NextUInt(0, 100) < 15)
+            if (Randomizer.NextUInt(0, 100) < 12)
             {
                 CommandBuffer.AddComponent(jobIndex, e, ComponentType.ReadOnly<IsIntelligentTag>());
+            }
+
+            if (translation.Value.z < -170f)
+            {
+                CommandBuffer.DestroyEntity(jobIndex, e);
             }
         }
     }
@@ -53,7 +58,7 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
             Randomizer = randomizer
         }.Schedule(this, inputDependencies);
 
-        job.Complete();
+        commandBuffer.AddJobHandleForProducer(job);
 
         return job;
     }

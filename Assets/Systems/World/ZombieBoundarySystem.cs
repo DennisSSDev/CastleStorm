@@ -1,34 +1,33 @@
-﻿
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
-public class BlockerDamageSystem : JobComponentSystem
+public class ZombieBoundarySystem : JobComponentSystem
 {
     private EntityCommandBufferSystem commandBuffer;
+    private Random randomizer;
 
     protected override void OnCreate()
     {
-        commandBuffer = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
+        commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        randomizer = new Random(1000);
         base.OnCreate();
     }
 
-    [RequireComponentTag(typeof(BlockerTag))]
-    struct BlockerDamageSystemJob : IJobForEachWithEntity<BlockerDamageTag, HealthComponent>
+    [BurstCompile][RequireComponentTag(typeof(ZombieTag), typeof(SpikeZoneTag))] // can't burst compile
+    struct ZombieBoundaryJob : IJobForEachWithEntity<Translation>
     {
-
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute(Entity e, int jobIndex, [ReadOnly] ref BlockerDamageTag blockerDamage, ref HealthComponent health)
+        public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation)
         {
-            health.hp -= 1;
-            if (health.hp < 0)
+            if (translation.Value.z < -170f)
             {
-                // destroy entity
                 CommandBuffer.DestroyEntity(jobIndex, e);
-                return;
-            } 
-            CommandBuffer.RemoveComponent(jobIndex, e, typeof(BlockerDamageTag));
+            }
         }
     }
     
@@ -36,7 +35,7 @@ public class BlockerDamageSystem : JobComponentSystem
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();
 
-        var job = new BlockerDamageSystemJob
+        var job = new ZombieBoundaryJob
         {
             CommandBuffer = cmndBuffer
         }.Schedule(this, inputDependencies);

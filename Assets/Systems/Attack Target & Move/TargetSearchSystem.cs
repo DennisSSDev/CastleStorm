@@ -8,7 +8,7 @@ using static Unity.Mathematics.math;
 
 public class TargetSearchSystem : JobComponentSystem
 {
-    [BurstCompile] [RequireComponentTag(typeof(CavalryZoneTag), typeof(NoLeaderTag))]
+    [BurstCompile] [RequireComponentTag(typeof(NoLeaderTag))]
     struct TargetSearchJob : IJobForEach<Translation, TargetComponent, QuadrantEntityComponent>
     {
         [ReadOnly]

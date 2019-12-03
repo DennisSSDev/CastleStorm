@@ -2,5 +2,5 @@
 using Unity.Entities;
 
 [Serializable]
-public struct BlockerDamageComponent : IComponentData
+public struct BlockerDamageTag : IComponentData
 { }

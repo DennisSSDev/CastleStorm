@@ -47,8 +47,13 @@ public class ZombieSpawner : MonoBehaviour
             movementData.speed += rand.NextFloat(-6f, 1f);
             entityManager.SetComponentData(instance, movementData);
         }
+        
+        EntityArchetype arch = entityManager.CreateArchetype(typeof(ZombieSpawnerComponent));
+        Entity e = entityManager.CreateEntity(arch);
+        entityManager.SetComponentData(e, new ZombieSpawnerComponent{prefab = prefab});
+        entityManager.Instantiate(e);
 
-        StartCoroutine(SpawnZombieBatch());
+        // StartCoroutine(SpawnZombieBatch());
     }
 
     IEnumerator SpawnZombieBatch()
