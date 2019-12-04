@@ -1,4 +1,5 @@
 ﻿
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -13,10 +14,9 @@ public class BlockerDamageSystem : JobComponentSystem
         base.OnCreate();
     }
 
-    [RequireComponentTag(typeof(BlockerTag))]
+    [BurstCompile][RequireComponentTag(typeof(BlockerTag))]
     struct BlockerDamageSystemJob : IJobForEachWithEntity<BlockerDamageTag, HealthComponent>
     {
-
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public void Execute(Entity e, int jobIndex, [ReadOnly] ref BlockerDamageTag blockerDamage, ref HealthComponent health)
@@ -27,11 +27,11 @@ public class BlockerDamageSystem : JobComponentSystem
                 // destroy entity
                 CommandBuffer.DestroyEntity(jobIndex, e);
                 return;
-            } 
-            CommandBuffer.RemoveComponent(jobIndex, e, typeof(BlockerDamageTag));
+            }
+            CommandBuffer.RemoveComponent<BlockerDamageTag>(jobIndex, e);
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();

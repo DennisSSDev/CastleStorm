@@ -8,11 +8,11 @@ using Unity.Transforms;
 
 public class MoveSystem : JobComponentSystem
 {
-    [BurstCompile, RequireComponentTag(typeof(NoLeaderTag))]
+    [BurstCompile] [RequireComponentTag(typeof(NoLeaderTag))]
     struct MoveSystemJob : IJobForEach<Translation, MovementComponent, AttackStateComponent, MovementStateComponent>
     {
         public float deltaTime;
-        
+
         public void Execute(ref Translation translation, [ReadOnly] ref MovementComponent movement, [ReadOnly] ref AttackStateComponent state, [ReadOnly] ref MovementStateComponent moveState)
         {
             translation.Value += movement.direction * movement.speed * deltaTime * state.value * moveState.Value;
@@ -25,7 +25,7 @@ public class MoveSystem : JobComponentSystem
         {
             deltaTime = UnityEngine.Time.deltaTime
         };
-        // Now that the job is set up, schedule it to be run. 
+        // Now that the job is set up, schedule it to be run.
         return job.Schedule(this, inputDependencies);
     }
 }

@@ -16,20 +16,18 @@ public class ZombieBlockerSystem : JobComponentSystem
         base.OnCreate();
     }
 
-    [RequireComponentTag(typeof(SpikeZoneTag))]
+    [BurstCompile][RequireComponentTag(typeof(SpikeZoneTag))]
     struct ZombieBlockerSystemJob : IJobForEachWithEntity<Translation, MeleeStrengthComponent, MovementStateComponent>
     {
-
-        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly]
         public NativeMultiHashMap<int, BlockerData> BlockerMap;
 
-        [ReadOnly] 
+        [ReadOnly]
         public ComponentDataFromEntity<BlockerDamageTag> DamageData;
 
-        [ReadOnly] 
+        [ReadOnly]
         public ComponentDataFromEntity<HealthComponent> HealthData;
 
         public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation, [ReadOnly] ref MeleeStrengthComponent strength, ref MovementStateComponent state)
@@ -40,8 +38,8 @@ public class ZombieBlockerSystem : JobComponentSystem
             {
                 float zombieX = translation.Value.x;
                 do
-                { 
-                    float furthestRight = blockerData.position.x + blockerData.width / 2; 
+                {
+                    float furthestRight = blockerData.position.x + blockerData.width / 2;
                     float furthestLeft = blockerData.position.x - blockerData.width / 2;
 
                    if (zombieX < furthestLeft || zombieX > furthestRight)
@@ -71,7 +69,7 @@ public class ZombieBlockerSystem : JobComponentSystem
             }
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();

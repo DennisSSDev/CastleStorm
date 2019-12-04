@@ -12,14 +12,13 @@ public class DamageSystem : JobComponentSystem
         commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         base.OnCreate();
     }
-    
-    [RequireComponentTag(typeof(DamageTakerTag))] // can't burst
+
+    [BurstCompile][RequireComponentTag(typeof(DamageTakerTag))]
     struct DamageSystemJob : IJobForEachWithEntity<HealthComponent>
     {
-        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        [ReadOnly] 
+        [ReadOnly]
         public NativeMultiHashMap<Entity, float> DamageMap;
 
         public void Execute(Entity e, int jobIndex, ref HealthComponent health)
@@ -43,7 +42,7 @@ public class DamageSystem : JobComponentSystem
             }
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();

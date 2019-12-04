@@ -16,11 +16,9 @@ public class LeaderSystem : JobComponentSystem
         base.OnCreate();
     }
 
-    [BurstCompile]
-    [RequireComponentTag(typeof(SquadLeaderTag))]
+    [BurstCompile][RequireComponentTag(typeof(SquadLeaderTag))]
     struct LeaderSystemJob : IJobForEachWithEntity<Translation, TargetComponent, LeaderComponent>
     {
-        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation, [ReadOnly] ref TargetComponent target, ref LeaderComponent leader)
@@ -46,7 +44,7 @@ public class LeaderSystem : JobComponentSystem
         {
             CommandBuffer = cmndBuffer
         }.Schedule(this, inputDependencies);
-        
+
         job.Complete();
 
         return job;

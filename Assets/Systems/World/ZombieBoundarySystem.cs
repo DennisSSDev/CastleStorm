@@ -17,7 +17,7 @@ public class ZombieBoundarySystem : JobComponentSystem
         base.OnCreate();
     }
 
-    [BurstCompile][RequireComponentTag(typeof(ZombieTag), typeof(SpikeZoneTag))] // can't burst compile
+    [BurstCompile][RequireComponentTag(typeof(ZombieTag), typeof(SpikeZoneTag))]
     struct ZombieBoundaryJob : IJobForEachWithEntity<Translation>
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -30,7 +30,7 @@ public class ZombieBoundarySystem : JobComponentSystem
             }
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();

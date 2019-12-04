@@ -16,12 +16,12 @@ public class CavalrySpawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var cavArchetype = GameObjectConversionUtility.ConvertGameObjectHierarchy(cavalryPrefab, World.Active);
-        var leaderArchetype = GameObjectConversionUtility.ConvertGameObjectHierarchy(sqaudLeaderPrefab, World.Active);
-        var entityManager = World.Active.EntityManager;
+        var cavArchetype = GameObjectConversionUtility.ConvertGameObjectHierarchy(cavalryPrefab, World.DefaultGameObjectInjectionWorld);
+        var leaderArchetype = GameObjectConversionUtility.ConvertGameObjectHierarchy(sqaudLeaderPrefab, World.DefaultGameObjectInjectionWorld);
+        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
         var leaderInstance = entityManager.Instantiate(leaderArchetype);
-        
+
         entityManager.SetComponentData(leaderInstance, new Translation{ Value = new float3(transform.position.x, 1f, transform.position.z)});
         entityManager.SetComponentData(leaderInstance, new LeaderComponent{ position = new float3(transform.position.x, 1f, transform.position.z)});
         float columnOffset = 0f;
@@ -36,7 +36,7 @@ public class CavalrySpawner : MonoBehaviour
                 // until the squad is destroyed, all must follow it
                 entityManager.AddComponentData(cavInstance, new FollowerComponent
                 {
-                    Leader = leaderInstance, 
+                    Leader = leaderInstance,
                     Offset = new float3(rowOffset, 1f, columnOffset)
                 });
 

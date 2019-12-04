@@ -15,8 +15,8 @@ public class FollowerSystem : JobComponentSystem
         commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         base.OnCreate();
     }
-    
-    [RequireComponentTag(typeof(CavalryTag))] // can't burst :'(
+
+    [BurstCompile][RequireComponentTag(typeof(CavalryTag))]
     struct FollowerSystemJob : IJobForEachWithEntity<Translation, FollowerComponent>
     {
         [ReadOnly]
@@ -30,7 +30,7 @@ public class FollowerSystem : JobComponentSystem
             if (!LeaderPositionData.Exists(follow.Leader))
             {
                 // there is no longer a valid leader, switch to target search
-                CommandBuffer.RemoveComponent(jobIndex, e, typeof(FollowerComponent));
+                CommandBuffer.RemoveComponent<FollowerComponent>(jobIndex, e);
                 CommandBuffer.AddComponent(jobIndex, e, new NoLeaderTag());
                 return;
             }
@@ -49,7 +49,7 @@ public class FollowerSystem : JobComponentSystem
             translation.Value += direction;
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();
@@ -60,7 +60,7 @@ public class FollowerSystem : JobComponentSystem
             LeaderPositionData = GetComponentDataFromEntity<LeaderComponent>(true)
         };
 
-        // Now that the job is set up, schedule it to be run. 
+        // Now that the job is set up, schedule it to be run.
         return job.Schedule(this, inputDependencies);
     }
 }

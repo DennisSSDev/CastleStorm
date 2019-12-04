@@ -65,14 +65,14 @@ public class TargetSearchSystem : JobComponentSystem
             }
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var job = new TargetSearchJob
         {
             EntityHashMap = QuadrantSystem.QuadrantEntityHashMap
         }.Schedule(this, inputDependencies);
-        
+
         job.Complete();
 
         return job;

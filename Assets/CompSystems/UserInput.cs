@@ -54,7 +54,7 @@ public class UserInput : ComponentSystem
         }
         else
         {
-            float delta = Time.deltaTime;
+            float delta = Time.DeltaTime;
             cameraPosition = cameraTransform.position;
 
             if (Input.mousePosition.y > ScreenHeight - panBorderThickness)
@@ -84,7 +84,7 @@ public class UserInput : ComponentSystem
      */
     private void Zoom()
     {
-        float delta = Time.deltaTime;
+        float delta = Time.DeltaTime;
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         cameraPosition = cameraTransform.position;

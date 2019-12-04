@@ -67,7 +67,7 @@ public class ProjectileSystem : JobComponentSystem
 
         var job = new ProjectileSystemJob
         {
-            deltaTime = Time.deltaTime,
+            deltaTime = Time.DeltaTime,
             CommandBuffer = cmndBuffer,
             QuadMap = QuadrantSystem.QuadrantEntityHashMap
         }.Schedule(this, inputDependencies);

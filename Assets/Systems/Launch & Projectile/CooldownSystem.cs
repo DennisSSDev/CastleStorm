@@ -16,10 +16,10 @@ public class CooldownSystem : JobComponentSystem
         commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         base.OnCreate();
     }
-    
+
+    [BurstCompile]
     struct CooldownSystemJob : IJobForEachWithEntity<CooldownComponent>
     {
-
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly]
@@ -30,18 +30,18 @@ public class CooldownSystem : JobComponentSystem
             cooldown.waitTime -= 0.5f * deltaTime;
             if (cooldown.waitTime < 0f)
             {
-                CommandBuffer.RemoveComponent(jobIndex, e,  typeof(CooldownComponent));
+                CommandBuffer.RemoveComponent<CooldownComponent>(jobIndex, e);
             }
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();
 
         var job = new CooldownSystemJob
         {
-            deltaTime = Time.deltaTime,
+            deltaTime = Time.DeltaTime,
             CommandBuffer = cmndBuffer
         }.Schedule(this, inputDependencies);
 

@@ -22,7 +22,7 @@ public class ZombieSpawner : MonoBehaviour
         spawnedCount = initialZombieSpawnCount;
         Unity.Mathematics.Random rand = new Unity.Mathematics.Random(42);
         var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(zombiePrefab, World.Active);
-        var entityManager = World.Active.EntityManager;
+        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         uint count = 0;
         while (count++ < initialZombieSpawnCount)
         {
@@ -37,7 +37,7 @@ public class ZombieSpawner : MonoBehaviour
             }
 
             usedPositions.Add(space);
-            
+
             var position = transform.TransformPoint(new float3(space.x, 1, space.y));
             entityManager.SetComponentData(instance, new Translation { Value = position });
 
@@ -47,7 +47,7 @@ public class ZombieSpawner : MonoBehaviour
             movementData.speed += rand.NextFloat(-6f, 1f);
             entityManager.SetComponentData(instance, movementData);
         }
-        
+
         EntityArchetype arch = entityManager.CreateArchetype(typeof(ZombieSpawnerComponent));
         Entity e = entityManager.CreateEntity(arch);
         entityManager.SetComponentData(e, new ZombieSpawnerComponent{prefab = prefab});
@@ -63,8 +63,8 @@ public class ZombieSpawner : MonoBehaviour
             yield return new WaitForSeconds(4);
             spawnedCount += 80;
             Unity.Mathematics.Random rand = new Unity.Mathematics.Random(42);
-            var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(zombiePrefab, World.Active);
-            var entityManager = World.Active.EntityManager;
+            var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(zombiePrefab, World.DefaultGameObjectInjectionWorld);
+            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             uint count = 0;
             while (count++ < 100)
             {

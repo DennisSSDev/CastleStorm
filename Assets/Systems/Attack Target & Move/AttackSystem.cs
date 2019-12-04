@@ -26,22 +26,21 @@ public class AttackSystem : JobComponentSystem
         base.OnDestroy();
     }
 
-    [RequireComponentTag(typeof(CanDamageTag), typeof(NoLeaderTag))] // can't burst :'(
+    [BurstCompile][RequireComponentTag(typeof(CanDamageTag), typeof(NoLeaderTag))]
     struct ZombieAttackSystemJob : IJobForEachWithEntity<Translation, MeleeStrengthComponent, AttackStateComponent, TargetComponent>
     {
-        [WriteOnly]
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly]
         public float MinDistance;
 
-        [ReadOnly] 
+        [ReadOnly]
         public ComponentDataFromEntity<DamageTakerTag> DamageTakerData;
 
-        [ReadOnly] 
+        [ReadOnly]
         public ComponentDataFromEntity<HealthComponent> HealthData;
 
-        [WriteOnly] 
+        [WriteOnly]
         public NativeMultiHashMap<Entity, float>.ParallelWriter EntityDamageMap;
 
         public void Execute(Entity e, int jobIndex, [ReadOnly] ref Translation translation, [ReadOnly] ref MeleeStrengthComponent strength, ref AttackStateComponent state, ref TargetComponent target)
@@ -64,7 +63,7 @@ public class AttackSystem : JobComponentSystem
                     target.entity = Entity.Null;
                     return;
                 }
-                CommandBuffer.AddComponent(jobIndex, target.entity, typeof(DamageTakerTag));
+                CommandBuffer.AddComponent<DamageTakerTag>(jobIndex, target.entity);
                 // add entry in the map
                 EntityDamageMap.Add(target.entity, strength.value);
             }
@@ -72,7 +71,7 @@ public class AttackSystem : JobComponentSystem
             EntityDamageMap.Add(target.entity, strength.value);
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();
@@ -94,7 +93,7 @@ public class AttackSystem : JobComponentSystem
             HealthData = GetComponentDataFromEntity<HealthComponent>(true),
             EntityDamageMap = DamageMap.AsParallelWriter()
         }.Schedule(this, inputDependencies);
-        
+
         commandBuffer.AddJobHandleForProducer(job);
         return job;
     }

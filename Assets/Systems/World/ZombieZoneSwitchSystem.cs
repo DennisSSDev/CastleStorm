@@ -12,15 +12,15 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
 
     protected override void OnCreate()
     {
-        commandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        commandBuffer = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
         randomizer = new Random(1000);
         base.OnCreate();
     }
 
-    [RequireComponentTag(typeof(ZombieTag), typeof(CavalryZoneTag))] // can't burst compile
+    [BurstCompile][RequireComponentTag(typeof(ZombieTag), typeof(CavalryZoneTag))]
     struct ZombieZoneSwitchSystemJob : IJobForEachWithEntity<Translation>
     {
-        [WriteOnly]
+
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         [ReadOnly]
@@ -33,7 +33,7 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
             if (translation.Value.z > SpikeZoneThreshold)
                 return;
 
-            CommandBuffer.AddComponent(jobIndex, e, ComponentType.ReadOnly<SpikeZoneTag>());
+            CommandBuffer.AddComponent(jobIndex, e, new SpikeZoneTag());
             CommandBuffer.RemoveComponent<CavalryZoneTag>(jobIndex, e);
             if (Randomizer.NextUInt(0, 100) < 12)
             {
@@ -46,7 +46,7 @@ public class ZombieZoneSwitchSystem : JobComponentSystem
             }
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();

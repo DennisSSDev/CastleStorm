@@ -18,7 +18,7 @@ public class LauncherAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         Random rand = new Random(seed);
         dstManager.AddComponentData(entity, new HealthComponent{hp = health});
         dstManager.AddComponentData(entity, new QuadrantEntityComponent{ type = launcherType });
-        Entity e = GameObjectConversionUtility.ConvertGameObjectHierarchy(projectile, World.Active);
+        Entity e = GameObjectConversionUtility.ConvertGameObjectHierarchy(projectile, World.DefaultGameObjectInjectionWorld);
         // to be spawned by the launcher system separately
         dstManager.AddComponentData(entity, new LauncherComponent{projectileEntity = e});
         if (rand.NextInt(0, 100) < 50)

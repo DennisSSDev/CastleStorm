@@ -20,15 +20,9 @@ public class ZombieContinuousSpawnSystem : JobComponentSystem
         base.OnCreate();
     }
 
-
-
-    [ExcludeComponent(typeof(CooldownComponent))]
+    [BurstCompile][ExcludeComponent(typeof(CooldownComponent))]
     struct ZombieContinuousSpawnSystemJob : IJobForEachWithEntity<ZombieSpawnerComponent>
     {
-        // Add fields here that your job needs to do its work.
-        // For example,
-        //    public float deltaTime;
-
         public uint SpawnCount;
 
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -42,7 +36,7 @@ public class ZombieContinuousSpawnSystem : JobComponentSystem
             SpawnCount += 80;
             if (SpawnCount > 1000)
             {
-                CommandBuffer.RemoveComponent(jobIndex, e, typeof(ZombieSpawnerComponent));
+                CommandBuffer.RemoveComponent<ZombieSpawnerComponent>(jobIndex, e);
             }
 
             var prefab = zombieSpawner.prefab;
@@ -60,7 +54,7 @@ public class ZombieContinuousSpawnSystem : JobComponentSystem
             CommandBuffer.AddComponent(jobIndex, e, new CooldownComponent{waitTime = 5f});
         }
     }
-    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var cmndBuffer = commandBuffer.CreateCommandBuffer().ToConcurrent();
