@@ -32,7 +32,7 @@ public class ProjectileSystem : JobComponentSystem
         {
             if (translation.Value.y < 0.15f)
             {
-                // todo: find all the entities in the nearby quad and destroy it if within the radius
+                // find all the entities in the nearby quad and destroy it if within the radius
                 int key = QuadrantSystem.GetPositionHashMapKey(translation.Value);
 
                 if (QuadMap.TryGetFirstValue(key, out var data, out var it))
